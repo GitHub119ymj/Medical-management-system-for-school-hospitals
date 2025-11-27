@@ -87,12 +87,22 @@
     <h1 class="title">预约医生或体检</h1>
 
     <!-- 表单部分 -->
-    <form action="processAppointment.jsp" method="post">
+    <form action="../smartAppointmentProcess" method="post">
         <!-- 选择预约类型 -->
         <label for="appointmentType">选择预约类型：</label>
         <select name="appointmentType" id="appointmentType" required>
             <option value="doctor">预约医生</option>
             <option value="checkup">预约体检</option>
+        </select>
+
+        <!-- 紧急度选择 -->
+        <label for="urgency">紧急度：</label>
+        <select name="urgency" id="urgency" required>
+            <option value="1">1 - 低</option>
+            <option value="2">2 - 中低</option>
+            <option value="3">3 - 中</option>
+            <option value="4">4 - 中高</option>
+            <option value="5">5 - 高</option>
         </select>
 
         <!-- 选择医生（仅当预约类型为“医生”时） -->
