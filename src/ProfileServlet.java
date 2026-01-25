@@ -26,7 +26,6 @@ public class ProfileServlet extends HttpServlet {
                     request.setAttribute("className", resultSet.getString("class_name"));
                     request.setAttribute("address", resultSet.getString("address"));
 
-                    // 跳转到显示页面
                     request.getRequestDispatcher("profile.jsp").forward(request, response);
                 } else {
                     request.setAttribute("error", "患者信息未找到！");
