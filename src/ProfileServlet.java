@@ -10,7 +10,7 @@ public class ProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String studentId = request.getParameter("studentId");
 
-        // 连接数据库并查询患者信息
+        
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hms", "root", "123456")) {
             String sql = "SELECT * FROM patients WHERE student_id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
