@@ -17,7 +17,6 @@ public class ProfileServlet extends HttpServlet {
                 statement.setString(1, studentId);
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    // 将查询结果存储在request中
                     request.setAttribute("name", resultSet.getString("name"));
                     request.setAttribute("gender", resultSet.getString("gender"));
                     request.setAttribute("age", resultSet.getInt("age"));
