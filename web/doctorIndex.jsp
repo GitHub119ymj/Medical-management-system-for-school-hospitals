@@ -110,6 +110,11 @@
         <h3>医生诊断与处方管理</h3>
         <a href="./5FifthFunction/diagnosisPrescription.jsp">进入模块</a>
     </div>
+    <div class="module">
+        <i class="fas fa-pills icon"></i>
+        <h3>药品库存管理</h3>
+        <a href="./6SixthFunction/medicineList.jsp">进入模块</a>
+    </div>
 </div>
 
 <footer>
