@@ -1,0 +1,236 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.sql.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>编辑药品</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            color: #00796b;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="number"] {
+            width: 200px;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #00796b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #00695c;
+        }
+        .btn-secondary {
+            background-color: #607d8b;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #455a64;
+        }
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>编辑药品</h1>
+        
+        <% 
+            // 获取URL中的id参数
+            String idStr = request.getParameter("id");
+            if (idStr == null || idStr.isEmpty()) {
+                out.println("<div class='error'>");
+                out.println("<i class='fas fa-exclamation-circle'></i> 缺少药品ID参数！");
+                out.println("</div>");
+                return;
+            }
+            
+            int id = Integer.parseInt(idStr);
+            
+            // 数据库连接信息
+            String url = "jdbc:mysql://localhost:3306/hms";
+            String username = "root";
+            String password = "123456";
+            
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            
+            String medicineName = "";
+            String category = "";
+            String specification = "";
+            int stockQuantity = 0;
+            double unitPrice = 0.0;
+            String manufacturer = "";
+            Date expiryDate = null;
+            int stockWarningLevel = 10;
+            
+            try {
+                // 加载驱动
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                // 建立连接
+                conn = DriverManager.getConnection(url, username, password);
+                
+                // 查询药品信息
+                String sql = "SELECT * FROM medicines WHERE id = ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setInt(1, id);
+                rs = pstmt.executeQuery();
+                
+                if (rs.next()) {
+                    medicineName = rs.getString("medicine_name");
+                    category = rs.getString("category");
+                    specification = rs.getString("specification");
+                    stockQuantity = rs.getInt("stock_quantity");
+                    unitPrice = rs.getDouble("unit_price");
+                    manufacturer = rs.getString("manufacturer");
+                    expiryDate = rs.getDate("expiry_date");
+                    stockWarningLevel = rs.getInt("stock_warning_level");
+                } else {
+                    out.println("<div class='error'>");
+                    out.println("<i class='fas fa-exclamation-circle'></i> 未找到该药品信息！");
+                    out.println("</div>");
+                    return;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                out.println("<div class='error'>");
+                out.println("<i class='fas fa-exclamation-circle'></i> 数据库操作失败：" + e.getMessage());
+                out.println("</div>");
+                return;
+            } finally {
+                // 关闭资源
+                try {
+                    if (rs != null) rs.close();
+                    if (pstmt != null) pstmt.close();
+                    if (conn != null) conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        %>
+        
+        <form action="processMedicine.jsp" method="post">
+            <input type="hidden" name="id" value="<%= id %>">
+            
+            <div class="form-group">
+                <label for="medicine_name">药品名称 *</label>
+                <input type="text" id="medicine_name" name="medicine_name" value="<%= medicineName %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">类别 *</label>
+                <select id="category" name="category" required>
+                    <option value="处方药" <%= category.equals("处方药") ? "selected" : "" %>>处方药</option>
+                    <option value="非处方药" <%= category.equals("非处方药") ? "selected" : "" %>>非处方药</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="specification">规格 *</label>
+                <input type="text" id="specification" name="specification" value="<%= specification %>" required placeholder="如500mg*20片">
+            </div>
+            
+            <div class="form-group">
+                <label for="stock_quantity">库存数量 *</label>
+                <input type="number" id="stock_quantity" name="stock_quantity" value="<%= stockQuantity %>" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="unit_price">单价 *</label>
+                <input type="number" id="unit_price" name="unit_price" value="<%= unitPrice %>" required min="0" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="manufacturer">生产厂家 *</label>
+                <input type="text" id="manufacturer" name="manufacturer" value="<%= manufacturer %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="expiry_date">有效期 *</label>
+                <input type="date" id="expiry_date" name="expiry_date" value="<%= expiryDate != null ? expiryDate.toString() : "" %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="stock_warning_level">库存预警阈值</label>
+                <input type="number" id="stock_warning_level" name="stock_warning_level" value="<%= stockWarningLevel %>" min="1">
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> 保存修改
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </form>
+        
+        <div class="footer">
+            <a href="medicineList.jsp" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> 返回
+            </a>
+        </div>
+    </div>
+</body>
+</html>
